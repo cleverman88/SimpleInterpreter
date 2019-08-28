@@ -47,9 +47,26 @@ class Interpreter(){
                     else eventStack.pop().begin()
                 }
             }
+
+            else ->{reassignment(text)}
         }
 
     }
+
+
+    private fun reassignment(text : String){
+        if(text.split(" ")[1] != "=")
+            throw Exception("Syntax error")
+        if(stringVariables.containsKey(text.split(" ")[0]))
+            stringVariables[text.split(" ")[0]] = getVariableValue("str $text").toString()
+        else if(intVariables.containsKey(text.split(" ")[0]))
+            intVariables[text.split(" ")[0]] = text.split(" ")[2].toInt()
+        else if(boolVariables.containsKey(text.split(" ")[0]))
+                boolVariables[text.split(" ")[0]] = (text.split(" ")[2] == "true")
+        else
+            throw Exception("Error variable ${text.split(" ")[0]} has not been declared")
+    }
+
 
     private fun forLoops(text : String){
         val start = text.split(" ")[1].toInt()

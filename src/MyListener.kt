@@ -21,6 +21,7 @@ class MyListener(var component : Component, var frame : JFrame) : KeyListener {
      * @param e the event to be processed
      */
     override fun keyReleased(e: KeyEvent?) {
+
     }
 
     /**
@@ -32,6 +33,8 @@ class MyListener(var component : Component, var frame : JFrame) : KeyListener {
     override fun keyPressed(e: KeyEvent?) {
         if (e != null) {
             if(e.keyCode == KeyEvent.VK_ENTER){
+                StyleConstants.setForeground(attrs, Color.BLACK)
+                sdoc.setCharacterAttributes(0, 100000, attrs, false);
                 e.consume()
                 (frame as View).updateText((component as JTextPane).text)
                 (component as JTextPane).text = ""
@@ -45,12 +48,12 @@ class MyListener(var component : Component, var frame : JFrame) : KeyListener {
      * a key typed event.
      * @param e the event to be processed
      */
-    override fun keyTyped(e: KeyEvent?) {
+     override fun keyTyped(e: KeyEvent?) {
         var check = (component as JTextPane).text
         for(words in check.split(" ")){
             if((frame as View).interpreter.KEYWORDS.contains(words)){
                 StyleConstants.setForeground(attrs, Color.blue)
-                sdoc.setCharacterAttributes(check.indexOf(words), check.indexOf(words)+words.length, attrs, true);
+                sdoc.setCharacterAttributes(check.indexOf(words), check.indexOf(words)+words.length, attrs, false);
             }
         }
         if(check.count { "\"".contains(it) } == 2){
