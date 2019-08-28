@@ -5,26 +5,36 @@ import java.awt.event.ActionEvent
 import java.awt.event.KeyEvent
 import java.awt.event.KeyListener
 import javax.swing.*
+import javax.swing.JTextPane
+import java.awt.AWTEventMulticaster.getListeners
+import javax.swing.text.StyleConstants
+import javax.swing.text.SimpleAttributeSet
+import java.awt.AWTEventMulticaster.getListeners
+import javax.swing.text.StyledDocument
+import java.awt.AWTEventMulticaster.getListeners
+import java.awt.Dimension
 
 
 class View(title : String,var interpreter : Interpreter) : JFrame() {
-    private var area = JTextArea(1, 30)
-    private var textField = JTextArea(17,30)
+    var tp = JTextPane()
+    private var textField = JTextPane()
     private var border = BorderFactory.createLineBorder(Color.BLACK)
+    var indent = ""
+    var tabs = 0
 
     init {
-        area.border = BorderFactory.createCompoundBorder(border,BorderFactory.createEmptyBorder(10, 10, 10, 10))
+        tp.border = BorderFactory.createCompoundBorder(border,BorderFactory.createEmptyBorder(10, 10, 10, 10))
         textField.border = BorderFactory.createCompoundBorder(border,BorderFactory.createEmptyBorder(10, 10, 10, 10))
         createUI(title)
     }
 
     public fun updateText(text : String){
-        textField.text += ">>$text\n"
+        textField.text += ">> $indent$text\n"
         interpreter.process(text)
     }
 
     public fun say(text : String){
-        textField.text += text+"\n"
+        textField.text += "$indent$text\n"
     }
 
     private fun createUI(title: String) {
@@ -33,13 +43,13 @@ class View(title : String,var interpreter : Interpreter) : JFrame() {
         setSize(400, 370)
         isResizable = false;
         setLocationRelativeTo(null)
-
-        val layout = BorderLayout()
-        contentPane.layout = layout
         textField.isEditable = false
-        contentPane.add(textField,BorderLayout.PAGE_START)
-        contentPane.add(area, BorderLayout.PAGE_END)
-        area.addKeyListener(MyListener(area,this))
+
+        val scroll = JScrollPane(textField)
+        contentPane.add(scroll)
+
+        contentPane.add(tp, BorderLayout.PAGE_END)
+        tp.addKeyListener(MyListener(tp,this))
     }
 }
 
