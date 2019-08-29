@@ -1,10 +1,10 @@
 import java.awt.EventQueue
 import java.lang.Exception
-import java.lang.IllegalArgumentException
-import java.lang.NumberFormatException
 import java.util.*
-import javax.swing.JFrame
 import kotlin.collections.HashMap
+
+
+
 
 class Interpreter(){
     private val frame : View = View("Simple Interpreter",this)
@@ -60,11 +60,53 @@ class Interpreter(){
         if(stringVariables.containsKey(text.split(" ")[0]))
             stringVariables[text.split(" ")[0]] = getVariableValue("str $text").toString()
         else if(intVariables.containsKey(text.split(" ")[0]))
-            intVariables[text.split(" ")[0]] = text.split(" ")[2].toInt()
+            intVariables[text.split(" ")[0]] = processOperations(text.split("=")[1].replaceFirst(" ",""))
         else if(boolVariables.containsKey(text.split(" ")[0]))
-                boolVariables[text.split(" ")[0]] = (text.split(" ")[2] == "true")
+            boolVariables[text.split(" ")[0]] = (text.split(" ")[2] == "true")
         else
             throw Exception("Error variable ${text.split(" ")[0]} has not been declared")
+    }
+
+
+    private fun processOperations(text: String): Int {
+        var operationStack = Stack<Int>()
+        var rpn = convertToRPN(text).replaceFirst(" ","")
+        println(rpn)
+        for (words in rpn.split(" ")) {
+            println("LOOPS")
+            try {
+                when (words) {
+                    "+" -> {
+                        operationStack.push(operationStack.pop() + operationStack.pop())
+                    }
+                    "-" -> {
+                        operationStack.push(operationStack.pop() - operationStack.pop())
+                    }
+                    "/" -> {
+                        operationStack.push(operationStack.pop() / operationStack.pop())
+                    }
+                    "*" -> {
+                        operationStack.push(operationStack.pop() * operationStack.pop())
+                    }
+                    else -> {
+                        println(words.matches(Regex("-?\\d+")))
+                        if (intVariables.containsKey(words))
+                            operationStack.push(intVariables[words])
+
+                        else if (words.matches(Regex("-?\\d+"))) {
+                            operationStack.push(words.toInt())
+                        }
+                        else {
+                            throw Exception()
+                        }
+                    }
+                }
+            } catch (e: Throwable) {
+                throw Exception("Syntax error")
+            }
+        }
+
+        return operationStack.peek()
     }
 
 
@@ -95,7 +137,7 @@ class Interpreter(){
 
     private fun addVariable(text : String){
         when(text.split(" ")[0]){
-            "int" ->{intVariables[getVariableName(text)] = (getVariableValue(text) as Int)}
+            "int" ->{intVariables[getVariableName(text)] = (processOperations(text.split("=")[1].replaceFirst(" ","")) as Int)}
             "str" ->{stringVariables[getVariableName(text)] = getVariableValue(text).toString()}
             "boolean" ->{boolVariables[getVariableName(text)] = (getVariableValue(text) as Boolean)}
         }
@@ -124,12 +166,40 @@ class Interpreter(){
                 return textChange.substring(start, end)
             }
             "boolean"->{
-                        if(text.split(" ")[3] != "true" && text.split(" ")[3] != "false")
-                        throw Exception("Syntax Error")
-                        else return text.split(" ")[3] == "true"
+                if(text.split(" ")[3] != "true" && text.split(" ")[3] != "false")
+                    throw Exception("Syntax Error")
+                else return text.split(" ")[3] == "true"
             }
         }
         return null
+    }
+
+    private fun convertToRPN(text:String) : String{
+        val prededence = HashMap<String, Int>()
+        prededence["/"] = 5
+        prededence["*"] = 5
+        prededence["+"] = 4
+        prededence["-"] = 4
+
+        val queue = LinkedList<String>()
+        val stack = Stack<String>()
+        for(o in text.split(" ")){
+            if(o.matches(Regex("-?\\d+")))
+                queue.push(o)
+            else if(prededence.containsKey(o)){
+                while(stack.isNotEmpty() && (prededence[stack.peek()]!! >= prededence[o]!!)){
+                    queue.push(stack.pop())
+                }
+                stack.push(o)
+            }
+        }
+        var str = ""
+        while(stack.isNotEmpty())
+            queue.push(stack.pop())
+        while(queue.isNotEmpty())
+            str +=queue.pop()+" "
+
+        return str.reversed()
     }
 }
 
