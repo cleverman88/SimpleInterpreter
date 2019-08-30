@@ -30,7 +30,15 @@ class View(title : String,var interpreter : Interpreter) : JFrame() {
 
     public fun updateText(text : String){
         textField.text += ">> $indent$text\n"
-        interpreter.process(text)
+        try{
+            interpreter.process(text)
+        }
+        catch(e : SyntaxError){
+            textField.text += e.errorMsg+"\n"
+        }
+        catch(e : VariableNotDeclared){
+            textField.text += e.errorMsg+"\n"
+        }
     }
 
     public fun say(text : String){

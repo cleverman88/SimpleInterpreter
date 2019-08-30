@@ -6,6 +6,9 @@ import kotlin.collections.HashMap
 
 
 
+class SyntaxError(var errorMsg : String, var trw : Throwable) : Exception(errorMsg,trw)
+class VariableNotDeclared(var errorMsg : String, var trw : Throwable) : Exception(errorMsg,trw)
+
 class Interpreter(){
     private val frame : View = View("Simple Interpreter",this)
     private val eventStack = Stack<ForLoops>()
@@ -56,7 +59,7 @@ class Interpreter(){
 
     private fun reassignment(text : String){
         if(text.split(" ")[1] != "=")
-            throw Exception("Syntax error")
+            throw SyntaxError("Syntax error", Throwable())
         if(stringVariables.containsKey(text.split(" ")[0]))
             stringVariables[text.split(" ")[0]] = getVariableValue("str $text").toString()
         else if(intVariables.containsKey(text.split(" ")[0]))
@@ -64,7 +67,7 @@ class Interpreter(){
         else if(boolVariables.containsKey(text.split(" ")[0]))
             boolVariables[text.split(" ")[0]] = (text.split(" ")[2] == "true")
         else
-            throw Exception("Error variable ${text.split(" ")[0]} has not been declared")
+            throw VariableNotDeclared("Error variable ${text.split(" ")[0]} has not been declared",Throwable())
     }
 
 
@@ -97,12 +100,12 @@ class Interpreter(){
                             operationStack.push(words.toInt())
                         }
                         else {
-                            throw Exception()
+                            throw SyntaxError("Syntax Error",Throwable())
                         }
                     }
                 }
             } catch (e: Throwable) {
-                throw Exception("Syntax error")
+                throw SyntaxError("Syntax error",Throwable())
             }
         }
 
@@ -113,8 +116,8 @@ class Interpreter(){
     private fun forLoops(text : String){
         val start = text.split(" ")[1].toInt()
         val end = text.split(" ")[3].toInt()
-        require(text.split(" ")[2] == "in") { "Syntax Error" }
-        require(text.split(" ")[4] == "{"){"Syntax Error"}
+        require(text.split(" ")[2] == "in") { throw SyntaxError("Syntax Error", Throwable()) }
+        require(text.split(" ")[4] == "{"){ throw SyntaxError("Syntax Error",Throwable())}
         var f = ForLoops(start,end,this)
         f.startEnq = true
         frame.indent += "   "
@@ -132,7 +135,7 @@ class Interpreter(){
         else if(text.contains("\""))
             frame.say(getVariableValue(text = (text.replaceFirst("say","str temp = "))) as String)
         else
-            throw Exception("Error variable ${getVariableName(text)} has not been declared")
+            throw VariableNotDeclared("Error variable ${getVariableName(text)} has not been declared",Throwable())
     }
 
     private fun addVariable(text : String){
@@ -144,20 +147,19 @@ class Interpreter(){
     }
 
     private fun getVariableName(text : String) : String{
-        require(!text.split(" ")[1].matches(Regex("[a-zA-Z ]*\\d+.*"))) { "Syntax Error" }
+        require(!text.split(" ")[1].matches(Regex("[a-zA-Z ]*\\d+.*"))) {  throw SyntaxError("Syntax Error",Throwable()) }
         return text.split(" ")[1]
     }
 
     private fun getVariableValue(text : String) : Any? {
         when(text.split(" ")[0]){
             "int" ->{
-                try{return text.split(" ")[3].toInt()}
-                catch(e : Exception){"Syntax Error"}
+                return text.split(" ")[3].toInt()
             }
             "str" -> {
                 var textChange = text
                 if (textChange.count { "\"".contains(it) } > 2) {
-                    throw Exception("Syntax Error")
+                    throw SyntaxError("Syntax Error",Throwable())
                 }
                 var start = textChange.indexOf("\"")
                 textChange = textChange.replaceFirst("\"", "")
@@ -167,7 +169,7 @@ class Interpreter(){
             }
             "boolean"->{
                 if(text.split(" ")[3] != "true" && text.split(" ")[3] != "false")
-                    throw Exception("Syntax Error")
+                    throw SyntaxError("Syntax Error",Throwable())
                 else return text.split(" ")[3] == "true"
             }
         }
