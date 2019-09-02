@@ -88,7 +88,6 @@ class Interpreter(){
     private fun ifStatement(text : String){
         var v : IfStatements? = null
         if(text.split(" ")[1] == "true") {
-            println("MADE THIS")
             v = IfStatements(1, 1, "==", this, 1, 2)
         }
         else if(text.split(" ")[1] == "false")
@@ -105,7 +104,6 @@ class Interpreter(){
             try {
                 left  = getIntValue(text.split(" ")[1])
                 right = getIntValue(text.split(" ")[3])
-                println("$left $right")
             }
             catch(e : SyntaxError){
                 left = getStringValue(text.split(" ")[1])
@@ -249,7 +247,18 @@ class Interpreter(){
         while(queue.isNotEmpty())
             str +=queue.pop()+" "
 
-        return str.reversed()
+        var s = Stack<String>()
+        str.substring(0, str.length-1)
+        for(x in str.split(" "))
+            s.push(x)
+        var temp = ""
+
+        while(s.isNotEmpty())
+            temp += " "+s.pop()
+
+        var reg = Regex("^\\s+")
+        temp.replace(reg,"")
+        return "${temp.replaceFirst(" ","")}"
     }
 }
 
