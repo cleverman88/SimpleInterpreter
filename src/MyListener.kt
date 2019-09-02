@@ -3,7 +3,6 @@ import java.awt.Component
 import java.awt.event.KeyEvent
 import java.awt.event.KeyListener
 import javax.swing.JFrame
-import javax.swing.JTextArea
 import javax.swing.JTextPane
 import javax.swing.text.SimpleAttributeSet
 import javax.swing.text.StyleConstants

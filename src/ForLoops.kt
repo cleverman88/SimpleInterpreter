@@ -1,9 +1,7 @@
 import java.util.*
 
-class ForLoops(var start : Int, var end : Int, var interpreter : Interpreter){
-    var queue = ArrayDeque<String>()
-    var startEnq : Boolean = false
-    fun begin(){
+class ForLoops(start : Int, end : Int, var interpreter : Interpreter) : Commands(start, end){
+    override fun begin(){
         println("$start $end")
         for(i in start..end){
             for(processes in queue){

@@ -1,18 +1,8 @@
 import java.awt.BorderLayout
 import java.awt.Color
-import java.awt.EventQueue
-import java.awt.event.ActionEvent
-import java.awt.event.KeyEvent
-import java.awt.event.KeyListener
 import javax.swing.*
 import javax.swing.JTextPane
-import java.awt.AWTEventMulticaster.getListeners
-import javax.swing.text.StyleConstants
-import javax.swing.text.SimpleAttributeSet
-import java.awt.AWTEventMulticaster.getListeners
-import javax.swing.text.StyledDocument
-import java.awt.AWTEventMulticaster.getListeners
-import java.awt.Dimension
+
 
 
 class View(title : String,var interpreter : Interpreter) : JFrame() {
@@ -38,6 +28,9 @@ class View(title : String,var interpreter : Interpreter) : JFrame() {
         }
         catch(e : VariableNotDeclared){
             textField.text += e.errorMsg+"\n"
+        }
+        catch(e : ArrayIndexOutOfBoundsException){
+            textField.text += "Syntax error"+"\n"
         }
     }
 

@@ -11,7 +11,7 @@ class VariableNotDeclared(var errorMsg : String, var trw : Throwable) : Exceptio
 
 class Interpreter(){
     private val frame : View = View("Simple Interpreter",this)
-    private val eventStack = Stack<ForLoops>()
+    private val eventStack = Stack<Commands>()
     init{
         frame.isVisible = true
     }
@@ -22,7 +22,7 @@ class Interpreter(){
 
     fun process(text : String){
         when(text.split(" ")[0]){
-            "while" ->{}
+            "if" ->{ifStatement(text)}
             "for" ->{forLoops(text)}
             "int" ->{addVariable(text)}
             "str" ->{addVariable(text)}
@@ -37,9 +37,6 @@ class Interpreter(){
                 for(i in 1..frame.tabs){
                     frame.indent += "   "
                 }
-                if(eventStack.peek().startEnq) {
-                    eventStack.peek().startEnq = false
-                    println(eventStack.size)
                     if(eventStack.size > 1){
                         var f = eventStack.pop()
                         var n = eventStack.peek()
@@ -49,13 +46,29 @@ class Interpreter(){
                     }
                     else eventStack.pop().begin()
                 }
-            }
 
-            else ->{reassignment(text)}
+            else ->{if(eventStack.isEmpty()) reassignment(text)
+            else eventStack.peek().queue.push(text)}
         }
 
     }
 
+    private fun getIntValue(text : String) : Int{
+        if(text.matches(Regex("-?\\d+")))
+            return text.toInt()
+        else if(intVariables.containsKey(text))
+            return intVariables[text]!!
+
+        else
+            throw SyntaxError("Syntax Error", Throwable())
+    }
+
+    private fun getStringValue(text: String) : String{
+        if(stringVariables.containsKey(text)){
+            return stringVariables[text]!!
+        }
+        throw SyntaxError("Syntax Error", Throwable())
+    }
 
     private fun reassignment(text : String){
         if(text.split(" ")[1] != "=")
@@ -71,6 +84,38 @@ class Interpreter(){
     }
 
 
+
+    private fun ifStatement(text : String){
+        var v : IfStatements? = null
+        if(text.split(" ")[1] == "true") {
+            println("MADE THIS")
+            v = IfStatements(1, 1, "==", this, 1, 2)
+        }
+        else if(text.split(" ")[1] == "false")
+            v = IfStatements(1,2,"==",this, 1 ,2 )
+        else if (boolVariables.containsKey(text.split(" ")[1])){
+            if(boolVariables[text.split(" ")[1]]!!)
+                v = IfStatements(1,1,"==",this, 1 ,2 )
+            else
+                v = IfStatements(1,2,"==",this, 1 ,2 )
+        }
+        else {
+            var left : Any
+            var right : Any
+            try {
+                left  = getIntValue(text.split(" ")[1])
+                right = getIntValue(text.split(" ")[3])
+                println("$left $right")
+            }
+            catch(e : SyntaxError){
+                left = getStringValue(text.split(" ")[1])
+                right = getStringValue(text.split(" ")[3])
+            }
+                v = IfStatements(left, right, text.split(" ")[2], this, 1, 2)
+        }
+        eventStack.push(v)
+
+    }
     private fun processOperations(text: String): Int {
         var operationStack = Stack<Int>()
         var rpn = convertToRPN(text).replaceFirst(" ","")
@@ -119,7 +164,6 @@ class Interpreter(){
         require(text.split(" ")[2] == "in") { throw SyntaxError("Syntax Error", Throwable()) }
         require(text.split(" ")[4] == "{"){ throw SyntaxError("Syntax Error",Throwable())}
         var f = ForLoops(start,end,this)
-        f.startEnq = true
         frame.indent += "   "
         frame.tabs++
         eventStack.push(f)
@@ -186,8 +230,12 @@ class Interpreter(){
         val queue = LinkedList<String>()
         val stack = Stack<String>()
         for(o in text.split(" ")){
+
             if(o.matches(Regex("-?\\d+")))
                 queue.push(o)
+            if (intVariables.containsKey(o)){
+                queue.push(intVariables[o].toString())
+            }
             else if(prededence.containsKey(o)){
                 while(stack.isNotEmpty() && (prededence[stack.peek()]!! >= prededence[o]!!)){
                     queue.push(stack.pop())
