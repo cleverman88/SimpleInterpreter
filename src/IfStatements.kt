@@ -1,17 +1,19 @@
 import java.util.*
 
-class IfStatements(var leftVariable : Any, var rightVariable : Any, var operator : String,var interpreter : Interpreter, start : Int, end : Int) : Commands(start, end){
-    var condition : Boolean = false
+class IfStatements(var leftVariable : Any, var rightVariable : Any, var operator : String,var interpreter : Interpreter) : Commands(){
+
+    private var condition : Boolean = false
     override fun begin(){
+        checkCondition()
+        println(condition)
         for(event in queue){
-            checkCondition()
             if(condition)
                 interpreter.process(event)
         }
     }
 
 
-    public fun checkCondition() {
+    fun checkCondition() {
         when (operator) {
             "<" -> {
                 if (leftVariable is Int && rightVariable is Int)

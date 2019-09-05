@@ -1,6 +1,6 @@
 import java.util.*
 
-class ForLoops(start : Int, end : Int, var interpreter : Interpreter) : Commands(start, end){
+class ForLoops(override var start : Int, override var end : Int, var interpreter : Interpreter) : Commands(){
     override fun begin(){
         println("$start $end")
         for(i in start..end){

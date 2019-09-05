@@ -1,9 +1,13 @@
 import java.util.*
 
-public abstract class Commands (var start : Int = 1, var end : Int = 2){
+/**
+ * Abstract class which any command that is run will inherit from
+ */
+public abstract class Commands {
 
     var queue = ArrayDeque<String>()
-
+    open var start = 1;
+    open var end = 1;
 
     public abstract fun begin()
 

@@ -15,9 +15,9 @@ class Interpreter(){
     init{
         frame.isVisible = true
     }
-    var intVariables = HashMap<String,Int>()
-    var stringVariables = HashMap<String,String>()
-    var boolVariables = HashMap<String, Boolean>()
+    private var intVariables = HashMap<String,Int>()
+    private var stringVariables = HashMap<String,String>()
+    private var boolVariables = HashMap<String, Boolean>()
     val KEYWORDS : Array<String> = arrayOf("for","if","str","int","boolean","say")
 
     fun process(text : String){
@@ -59,8 +59,7 @@ class Interpreter(){
         else if(intVariables.containsKey(text))
             return intVariables[text]!!
 
-        else
-            throw SyntaxError("Syntax Error", Throwable())
+        throw SyntaxError("Syntax Error", Throwable())
     }
 
     private fun getStringValue(text: String) : String{
@@ -88,15 +87,15 @@ class Interpreter(){
     private fun ifStatement(text : String){
         var v : IfStatements? = null
         if(text.split(" ")[1] == "true") {
-            v = IfStatements(1, 1, "==", this, 1, 2)
+            v = IfStatements(1, 1, "==", this)
         }
         else if(text.split(" ")[1] == "false")
-            v = IfStatements(1,2,"==",this, 1 ,2 )
+            v = IfStatements(1,2,"==",this)
         else if (boolVariables.containsKey(text.split(" ")[1])){
             if(boolVariables[text.split(" ")[1]]!!)
-                v = IfStatements(1,1,"==",this, 1 ,2 )
+                v = IfStatements(1,1,"==",this)
             else
-                v = IfStatements(1,2,"==",this, 1 ,2 )
+                v = IfStatements(1,2,"==",this)
         }
         else {
             var left : Any
@@ -109,8 +108,10 @@ class Interpreter(){
                 left = getStringValue(text.split(" ")[1])
                 right = getStringValue(text.split(" ")[3])
             }
-                v = IfStatements(left, right, text.split(" ")[2], this, 1, 2)
+                v = IfStatements(left, right, text.split(" ")[2], this)
         }
+        frame.indent += "   "
+        frame.tabs++
         eventStack.push(v)
 
     }
@@ -119,7 +120,6 @@ class Interpreter(){
         var rpn = convertToRPN(text).replaceFirst(" ","")
         println(rpn)
         for (words in rpn.split(" ")) {
-            println("LOOPS")
             try {
                 when (words) {
                     "+" -> {
